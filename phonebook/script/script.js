@@ -5,21 +5,25 @@ const data = [
     name: 'Иван',
     surname: 'Петров',
     phone: '+79514545454',
+    button: 'Редактировать',
   },
   {
     name: 'Игорь',
     surname: 'Семёнов',
     phone: '+79999999999',
+    button: 'Редактировать',
   },
   {
     name: 'Семён',
     surname: 'Иванов',
     phone: '+79800252525',
+    button: 'Редактировать',
   },
   {
     name: 'Мария',
     surname: 'Попова',
     phone: '+79876543210',
+    button: 'Редактировать',
   },
 ];
 
@@ -147,7 +151,7 @@ const data = [
             className: 'btn btn-danger',
             type: 'reset',
             text: 'Отмена',
-        },
+        },        
         ]);
         
         form.append(...buttonGroup.btns);
@@ -195,7 +199,7 @@ const data = [
       };
     };
 
-    const createRow = ({ name: firstName, surname, phone }) => {
+    const createRow = ({ name: firstName, surname, phone, button }) => {
         const tr = document.createElement('tr');
 
         const tdDel = document.createElement('td');
@@ -217,7 +221,13 @@ const data = [
         tr.phoneLink = phoneLink;
 
         tdPhone.append(phoneLink);
-        tr.append(tdDel, tdName, tdSurname, tdPhone);
+
+        const btnEdit = document.createElement('td');       
+        btnEdit.textContent = button;
+        btnEdit.classList.add('btn-edit');        
+        
+
+        tr.append(tdDel, tdName, tdSurname, tdPhone, btnEdit);
 
         return tr;
     };
@@ -261,7 +271,12 @@ const data = [
 
         formOverlay.addEventListener('click', () => {
           formOverlay.classList.remove('is-visible');
-        });    
+        });
+        
+        const btnClose = formOverlay.querySelector('.close');
+        btnClose.addEventListener('click', () => {
+          formOverlay.classList.remove('is-visible');
+        });
         
     };
 
