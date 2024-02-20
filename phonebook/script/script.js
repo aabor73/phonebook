@@ -90,7 +90,7 @@ const data = [
         return {
             btnWrapper,
             btns,
-        }
+        };
     };
 
     const createTable = () => {
@@ -157,7 +157,7 @@ const data = [
         return {
             overlay,
             form,
-        }
+        };
     };
 
   const renderPhoneBook = (app, title) => {    
@@ -188,6 +188,9 @@ const data = [
       
       return {
           list: table.tbody,
+          logo,
+          btnAdd: buttonGroup.btns[0],
+          formOverlay: form.overlay,
       };
     };
 
@@ -210,6 +213,7 @@ const data = [
         const phoneLink = document.createElement('a');
         phoneLink.href = `tel:${phone}`;
         phoneLink.textContent = phone;
+        tr.phoneLink = phoneLink;
 
         tdPhone.append(phoneLink);
         tr.append(tdDel, tdName, tdSurname, tdPhone);
@@ -220,16 +224,40 @@ const data = [
     const renderContacts = (elem, data) => {
         const allRow = data.map(createRow);
         elem.append(...allRow);
-    }
+        return allRow;
+    };
+
+    const hoverRow = (allRow, logo) => {
+      const text = logo.textContent;
+
+      allRow.forEach(contact => {
+        contact.addEventListener('mouseenter', () => {
+          logo.textContent = contact.phoneLink.textContent;
+        });
+        contact.addEventListener('mouseleave', () => {
+          logo.textContent = text;
+        });
+      });
+    };
     
     const init = (selectorApp, title) => {
         const app = document.querySelector(selectorApp);
         const phoneBook = renderPhoneBook(app, title);
-        const { list } = phoneBook;
+        const { list, logo, btnAdd, formOverlay } = phoneBook;
 
-        renderContacts(list, data);
         // Функционал
-    }; 
+        const allRow = renderContacts(list, data);
 
-window.phoneBookInit = init;
+        hoverRow(allRow, logo);
+
+        const objEvent = {
+          handleEvent() {
+            formOverlay.classList.add('is-visible');
+          },
+        }
+        
+        btnAdd.addEventListener('click', objEvent);
+    };
+
+  window.phoneBookInit = init;
 }
