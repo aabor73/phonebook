@@ -48,7 +48,14 @@ body {
   margin-bottom: 30px;
 }
 
-
+.btn-edit {
+  width: 100px;
+  background: #0084ff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
 .form {
   padding: 30px 50px;
