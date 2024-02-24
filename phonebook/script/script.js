@@ -27,7 +27,13 @@ const data = [
   },
 ];
 
-{    
+{
+  // Временная функция для добавления нового контакта
+  const addContactData = contact => {
+    data.push(contact);
+    console.log("🚀 ~ addContactData ~ data:", data)
+  };    
+
   const createContainer = () => {
     const container = document.createElement('div');
 
@@ -182,11 +188,11 @@ const data = [
         },
       ]);
       
-      const table = createTable();
-      const form = createForm();
+    const table = createTable();
+    const { form, overlay } = createForm();
 
       header.headerContainer.append(logo);
-      main.mainContainer.append(buttonGroup.btnWrapper, table, form.overlay);
+      main.mainContainer.append(buttonGroup.btnWrapper, table, overlay);
 
       app.append(header, main, footer);
       
@@ -195,8 +201,8 @@ const data = [
           logo,
           btnAdd: buttonGroup.btns[0],
           btnDel: buttonGroup.btns[1],
-          formOverlay: form.overlay,
-          form: form.form,
+          formOverlay: overlay,
+          form,
       };
     };
 
@@ -225,7 +231,7 @@ const data = [
         tdPhone.append(phoneLink);
 
         const btnEdit = document.createElement('td');       
-        btnEdit.textContent = button;
+        btnEdit.textContent = 'Редактировать';
         btnEdit.classList.add('btn-edit');        
         
 
@@ -251,49 +257,85 @@ const data = [
           logo.textContent = text;
         });
       });
+  };
+  
+  // Функция для модального окна
+  const modalControl = (btnAdd, formOverlay) => {
+    const openModal = () => {
+      formOverlay.classList.add('is-visible');
     };
-    
-    const init = (selectorApp, title) => {
-        const app = document.querySelector(selectorApp);
-        const phoneBook = renderPhoneBook(app, title);
-        const { 
-          list,
-          logo,
-          btnAdd,
-          btnDel,
-          formOverlay,
-          form,
-        } = phoneBook;
 
-        // Функционал
-        const allRow = renderContacts(list, data);
+    const closeModal = () => {
+      formOverlay.classList.remove('is-visible');
+    };
 
-        hoverRow(allRow, logo);
+    btnAdd.addEventListener('click', openModal);
 
-        btnAdd.addEventListener('click', () => {
-          formOverlay.classList.add('is-visible');
-        });
+    formOverlay.addEventListener('click', e => {
+      const target = e.target;
+        if (target === formOverlay || 
+          target.classList.contains('close')) {
+          closeModal();
+      };          
+    });
+    return {
+      closeModal,
+    };
+  };
 
-        formOverlay.addEventListener('click', e => {
-          const target = e.target;
-          if (target === formOverlay || 
-            target.classList.contains('close')) {
-            formOverlay.classList.remove('is-visible');
-          };          
-        });         
-
-        btnDel.addEventListener('click', () => {
-          document.querySelectorAll('.delete').forEach(del => {
-            del.classList.toggle('is-visible');
-          });
-        });
-        
-        list.addEventListener('click', e => {
-          const target = e.target;
-          if (target.closest('.del-icon')) {
-            target.closest('.contact').remove();
-          };
+  // Функция удаления строки контактов
+  const deleteControl = (btnDel, list) => {
+    btnDel.addEventListener('click', () => {
+      document.querySelectorAll('.delete').forEach(del => {
+        del.classList.toggle('is-visible');
       });
+    });
+        
+    list.addEventListener('click', e => {
+      const target = e.target;
+      if (target.closest('.del-icon')) {
+        target.closest('.contact').remove();
+      };
+    });
+  };
+
+  // Функция для добавления контакта
+  const addContactPage = (contact, list) => {
+    list.append(createRow(contact)); // добавляем новый контакт в телефонную книгу
+  };
+  
+  // Функция для формы
+  const formControl = (form, list, closeModal) => {
+    form.addEventListener('submit', e => {
+      e.preventDefault(); // убираем перезагрузку страницы
+      const formData = new FormData(e.target); // получаем данные из формы
+      const newContact = Object.fromEntries(formData); // создаем объект с данными из формы
+      
+      addContactPage(newContact, list); // добавляем новый контакт на страницу
+      addContactData(newContact); // добавляем новый контакт в базу контактов     
+      form.reset(); // очищаем форму
+      closeModal(); // закрываем модальное окно
+    });
+  };
+    
+  // ==== Функционал ====
+    const init = (selectorApp, title) => {
+      const app = document.querySelector(selectorApp);        
+      const { 
+        list,
+        logo,
+        btnAdd,
+        btnDel,
+        formOverlay,
+        form,
+      } = renderPhoneBook(app, title);
+        
+      const allRow = renderContacts(list, data);
+      const {closeModal} = modalControl(btnAdd, formOverlay);
+      
+      hoverRow(allRow, logo);      
+      deleteControl(btnDel, list);
+      formControl(form, list, closeModal);
     };
 
   window.phoneBookInit = init;
